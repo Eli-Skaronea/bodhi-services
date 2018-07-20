@@ -1,0 +1,34 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "generic-ingest.fullname" . }}
+  labels:
+    app: {{ template "generic-ingest.name" . }}
+    chart: {{ template "generic-ingest.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ template "bc.default.replicas"}}
+  selector:
+    matchLabels:
+      app: {{ template "generic-ingest.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "generic-ingest.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: hawk-trunk-nexus.stwan.bits/bodhi/generic-ingest
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: {{ include "bc.default.ports" . | indent 10 }}
+          livenessProbe: {{ include "bc.default.liveness" . | indent 10}}
+          readinessProbe: {{ include "bc.default.readiness" . | indent 10}}
+      affinity: {{include "bc.default.affinity" . | indent 6}}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: ${BASE_ENV},devtest,postgres_pw
+
+#Todo - logging, networks, constraints, create dynamic replicas

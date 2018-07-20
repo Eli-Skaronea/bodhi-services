@@ -1,0 +1,49 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "external-status.fullname" . }}
+  labels:
+    app: {{ template "external-status.name" . }}
+    chart: {{ template "external-status.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ template "bc.default.replicas" }}
+  selector:
+    matchLabels:
+      app: {{ template "external-status.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "external-status.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: hawk-trunk-nexus.stwan.bits/bodhi/external-status
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: {{ include "bc.default.ports" . | indent 10 }}
+          livenessProbe: {{ include "bc.service.liveness" . | indent 10}}
+          readinessProbe: {{ include "bc.default.readiness" . | indent 10}}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: ${BASE_ENV},devtest,postgres_pw
+            - name: SPRING_CLOUD_CONFIG_LABEL
+              value: master
+            - name: SERVER_PORT
+              value: 0
+            - name: INFO_VERSION
+              value: master
+            - name: JAVA_OPTS
+              value: -Xmx100m
+            - name: RDS_POSTGRES_USER
+              value: external_status
+            - name: RDS_POSTGRES_HOST
+              value: ${RDS_HOST}
+            - name: RDS_POSTGRES_DB
+              value: external_status_database
+      affinity: {{include "bc.default.affinity" . | indent 6}}
+          
+
+#Todo - logging, networks, constraints, health-checks, dynamic replicas

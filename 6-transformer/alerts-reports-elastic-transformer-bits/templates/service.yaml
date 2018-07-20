@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "alerts-reports-elastic-transformer-bits.fullname" . }}
+  labels:
+    app: {{ template "alerts-reports-elastic-transformer-bits.name" . }}
+    chart: {{ template "alerts-reports-elastic-transformer-bits.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec: {{ include "bc.default.service.spec" . }}
+  selector:
+    app: {{ template "alerts-reports-elastic-transformer-bits.name" . }}
+    release: {{ .Release.Name }}

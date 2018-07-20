@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "external-status.fullname" . }}
+  labels:
+    app: {{ template "external-status.name" . }}
+    chart: {{ template "external-status.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec: {{ include "bc.default.service.spec" . }}
+  selector:
+    app: {{ template "external-status.name" . }}
+    release: {{ .Release.Name }}

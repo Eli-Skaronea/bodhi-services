@@ -1,0 +1,6 @@
+dependencies:
+- name: bodhi-common
+  repository: https://eli-skaronea.github.io/helm-charts/
+  version: 1.0-latest
+digest: sha256:7164d79b118326ded0fee8264553b0efa034927d392f13057df938b66b98c1d4
+generated: 2018-07-20T10:01:32.779548143-06:00

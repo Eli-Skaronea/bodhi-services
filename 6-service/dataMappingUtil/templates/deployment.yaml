@@ -1,0 +1,49 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "dataMappingUtil.fullname" . }}
+  labels:
+    app: {{ template "dataMappingUtil.name" . }}
+    chart: {{ template "dataMappingUtil.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ template "bc.default.replicas" }}
+  selector:
+    matchLabels:
+      app: {{ template "dataMappingUtil.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "dataMappingUtil.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: hawk-trunk-nexus.stwan.bits/bodhi/data-mapping-util
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: {{ include "bc.default.ports" . | indent 10 }}
+          livenessProbe: {{ include "bc.service.liveness" . | indent 10}}
+          readinessProbe: {{ include "bc.default.readiness" . | indent 10}}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: ${BASE_ENV},devtest,postgres_pw
+            - name: SPRING_CLOUD_CONFIG_LABEL
+              value: master
+            - name: INFO_VERSION
+              value: master
+            - name: JAVA_OPTS
+              value: -Xmx250m
+            - name: SERVER_PORT
+              value: 0
+            - name: RDS_POSTGRES_USER
+              value: data_mapping_user
+            - name: RDS_POSTGRES_HOST
+              value: ${RDS_HOST}
+            - name: RDS_POSTGRES_DB
+              value: data_mapping_db
+      affinity: {{include "bc.default.affinity" . | indent 6}}
+          
+
+#Todo - logging, networks, constraints, health-checks, dynamic replicas

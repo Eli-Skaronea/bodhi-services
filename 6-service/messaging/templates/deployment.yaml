@@ -1,0 +1,43 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "messaging.fullname" . }}
+  labels:
+    app: {{ template "messaging.name" . }}
+    chart: {{ template "messaging.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ template "bc.default.replicas" }}
+  selector:
+    matchLabels:
+      app: {{ template "messaging.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "messaging.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: hawk-trunk-nexus.stwan.bits/bodhi/messaging
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: {{ include "bc.default.ports" . | indent 10 }}
+          livenessProbe: {{ include "bc.service.liveness" . | indent 10}}
+          readinessProbe: {{ include "bc.default.readiness" . | indent 10}}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: ${BASE_ENV},devtest
+            - name: SPRING_CLOUD_CONFIG_LABEL
+              value: master
+            - name: INFO_VERSION
+              value: master
+            - name: SERVER_PORT
+              value: 0
+            - name: JAVA_OPTS
+              value: -Xmx250m
+      affinity: {{include "bc.default.affinity" . | indent 6}}
+          
+
+#Todo - logging, networks, health-checks, constraints

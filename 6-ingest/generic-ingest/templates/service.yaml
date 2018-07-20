@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "generic-ingest.fullname" . }}
+  labels:
+    app: {{ template "generic-ingest.name" . }}
+    chart: {{ template "generic-ingest.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec: {{ include "bc.6.service.spec" . }}
+  selector:
+    app: {{ template "generic-ingest.name" . }}
+    release: {{ .Release.Name }}

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "dataMappingUtil.fullname" . }}
+  labels:
+    app: {{ template "dataMappingUtil.name" . }}
+    chart: {{ template "dataMappingUtil.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec: {{ include "bc.default.service.spec" . }}
+  selector:
+    app: {{ template "dataMappingUtil.name" . }}
+    release: {{ .Release.Name }}

@@ -1,0 +1,32 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "alerts-reports-elastic-transformer-bits.fullname" . }}
+  labels:
+    app: {{ template "alerts-reports-elastic-transformer-bits.name" . }}
+    chart: {{ template "alerts-reports-elastic-transformer-bits.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ template "bc.default.replicas" }}
+  selector:
+    matchLabels:
+      app: {{ template "alerts-reports-elastic-transformer-bits.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "alerts-reports-elastic-transformer-bits.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ .Values.image }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: {{ include "bc.default.ports" . | indent 10}}
+          livenessProbe: {{ include "bc.default.liveness" . | indent 10}}
+          readinessProbe: {{ include "bc.default.readiness" . | indent 10}}
+          env: {{include "bc.transformer.env" . | indent 10}}
+      affinity: {{ include "bc.default.affinity" . | indent 6}}
+
+#Todo - logging, networks, constraints, dynamic replicas
